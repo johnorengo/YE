@@ -1,0 +1,254 @@
+:root {
+  --signup-navy: #071d46;
+  --signup-blue: #075fcf;
+  --signup-line: #d9e2ed;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+  color: var(--signup-navy);
+  background: #f6f9fe;
+}
+
+.signup-page {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 28px;
+  background:
+    linear-gradient(rgba(7, 29, 70, 0.24), rgba(7, 29, 70, 0.24)),
+    url("https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&w=1800&q=80") center / cover;
+}
+
+.signup-panel {
+  width: min(560px, 100%);
+  padding: 28px;
+  background: #fff;
+  border: 1px solid var(--signup-line);
+  border-radius: 8px;
+  box-shadow: 0 20px 50px rgba(7, 29, 70, 0.22);
+}
+
+.signup-back,
+.signup-switch a {
+  color: var(--signup-blue);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.signup-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+
+.signup-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.signup-brand-mark {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #e5311e 0 62%, #2d9446 63%);
+}
+
+.signup-brand strong {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 24px;
+}
+
+.signup-panel h1 {
+  margin: 0 0 8px;
+  font-size: 32px;
+}
+
+.signup-panel > p {
+  margin: 0 0 24px;
+  color: #53627a;
+  line-height: 1.45;
+}
+
+.signup-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.signup-form label {
+  display: grid;
+  gap: 7px;
+  font-weight: 800;
+}
+
+.signup-form label:nth-child(2),
+.signup-form label:nth-child(5),
+.subscription-fieldset,
+.signup-secure-note,
+.signup-form button {
+  grid-column: 1 / -1;
+}
+
+.signup-form label span {
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  align-items: center;
+  gap: 10px;
+  height: 46px;
+  padding: 0 13px;
+  border: 1px solid var(--signup-line);
+  border-radius: 8px;
+}
+
+.signup-form input,
+.signup-form select {
+  min-width: 0;
+  width: 100%;
+  border: 0;
+  outline: 0;
+  font: inherit;
+  color: var(--signup-navy);
+  background: transparent;
+}
+
+.signup-form select:disabled {
+  color: #7a879c;
+  cursor: not-allowed;
+}
+
+.signup-form button {
+  height: 48px;
+  color: #fff;
+  background: linear-gradient(180deg, #e41520, #c40b15);
+  border: 0;
+  border-radius: 8px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.subscription-fieldset {
+  min-width: 0;
+  margin: 4px 0 0;
+  padding: 0;
+  border: 0;
+}
+
+.subscription-fieldset legend {
+  margin-bottom: 9px;
+  font-weight: 900;
+}
+
+.subscription-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.subscription-options button {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  min-height: 138px;
+  height: auto;
+  padding: 15px 13px;
+  color: var(--signup-navy);
+  text-align: left;
+  background: #ffffff;
+  border: 1px solid var(--signup-line);
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+.subscription-options button.active {
+  color: #ffffff;
+  background: linear-gradient(180deg, #075fcf, #073d91);
+  border-color: #073d91;
+}
+
+.subscription-options button svg {
+  color: #e41520;
+}
+
+.subscription-options button.active svg {
+  color: #ffffff;
+}
+
+.subscription-options strong {
+  font-size: 1rem;
+}
+
+.subscription-options span {
+  display: block;
+  height: auto;
+  padding: 0;
+  border: 0;
+  color: inherit;
+  font-size: 0.88rem;
+}
+
+.subscription-options small {
+  color: #61708a;
+  font-size: 0.76rem;
+  line-height: 1.35;
+}
+
+.subscription-options button.active small {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.subscription-options button > svg:last-child {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+
+.signup-secure-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 !important;
+  color: #53627a;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.signup-error {
+  grid-column: 1 / -1;
+  margin: 0 !important;
+  padding: 10px 12px;
+  color: #c40b15;
+  background: #fff1f2;
+  border: 1px solid #ffc8cd;
+  border-radius: 8px;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.signup-switch {
+  margin: 20px 0 0 !important;
+  text-align: center;
+}
+
+@media (max-width: 560px) {
+  .signup-form {
+    grid-template-columns: 1fr;
+  }
+
+  .signup-form label {
+    grid-column: 1 / -1;
+  }
+
+  .subscription-options {
+    grid-template-columns: 1fr;
+  }
+}
