@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   BadgeCheck,
   Bell,
@@ -84,7 +84,7 @@ function ClientSidebar({ active, setActive }) {
   );
 }
 
-function Topbar({ query, setQuery, active, account, plan }) {
+function Topbar({ query, setQuery, active, account, plan, onLogout }) {
   return (
     <header className="client-topbar">
       <div>
@@ -102,7 +102,7 @@ function Topbar({ query, setQuery, active, account, plan }) {
           <span><strong>{account.alias}</strong><small>{plan} Subscriber</small></span>
           <ChevronDown size={22} />
         </div>
-        <a className="client-logout" href="#">Logout</a>
+        <button className="client-logout" type="button" onClick={onLogout}>Logout</button>
       </div>
     </header>
   );
@@ -337,12 +337,13 @@ function SettingsSection({ account, setStatus }) {
 export default function ClientDashboard() {
   const storedAccount = useMemo(() => {
     try {
-      return JSON.parse(localStorage.getItem("yekClientAccount") || "null");
+      return JSON.parse(localStorage.getItem("yekUser") || JSON.parse(localStorage.getItem("yekClientAccount") || "null"));
     } catch {
       return null;
     }
   }, []);
-  const account = storedAccount || {
+
+  const [account, setAccount] = useState(storedAccount || {
     fullName: "Sweet Rose",
     alias: "Sweet Rose",
     email: "sweetrose@example.com",
@@ -352,18 +353,102 @@ export default function ClientDashboard() {
     town: "Nairobi",
     subscription: "VIP",
     isNewSignup: false
-  };
+  });
+
   const [active, setActive] = useState("Overview");
   const [query, setQuery] = useState("");
   const [countyCode, setCountyCode] = useState(account.countyCode);
   const [town, setTown] = useState(account.town);
   const [plan, setPlan] = useState(account.subscription);
   const [status, setStatus] = useState(account.isNewSignup ? "New account created. Complete your profile and submit it for review." : "Draft saved");
+  const [saving, setSaving] = useState(false);
 
   const selectedCounty = useMemo(() => counties.find((county) => county.code === countyCode), [countyCode]);
 
+  useEffect(() => {
+    // Fetch profile from backend if user has auth token
+    const token = localStorage.getItem("yekAuthToken");
+    if (token) {
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:4000";
+      
+      fetch(`${apiBaseUrl}/api/profile`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.user) {
+            const profile = data.profile || {};
+            setAccount({
+              id: data.user.id,
+              fullName: data.user.full_name,
+              alias: profile.alias || data.user.full_name,
+              email: data.user.email,
+              phone: data.user.phone,
+              countyCode: profile.county_code || account.countyCode,
+              countyName: profile.county_name || account.countyName,
+              town: profile.town || account.town,
+              subscription: profile.subscription_plan_id === 1 ? "VVIP" : profile.subscription_plan_id === 2 ? "VIP" : "REGULAR"
+            });
+            setCountyCode(profile.county_code || account.countyCode);
+            setTown(profile.town || account.town);
+            setPlan(profile.subscription_plan_id === 1 ? "VVIP" : profile.subscription_plan_id === 2 ? "VIP" : "REGULAR");
+          }
+        })
+        .catch((error) => console.error("Failed to fetch profile:", error));
+    }
+  }, []);
+
   function saveProfile() {
-    setStatus("Profile changes saved");
+    const token = localStorage.getItem("yekAuthToken");
+    if (!token) {
+      setStatus("Please sign in to save profile changes");
+      return;
+    }
+
+    setSaving(true);
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:4000";
+
+    fetch(`${apiBaseUrl}/api/profile`, {
+      method: "PUT",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        fullName: account.fullName,
+        phone: account.phone,
+        alias: account.alias,
+        county: selectedCounty?.name,
+        town: town,
+        subscription: plan
+      })
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setSaving(false);
+        if (data.error) {
+          setStatus("Failed to save profile: " + data.error);
+        } else {
+          setStatus("Profile changes saved successfully");
+        }
+      })
+      .catch((error) => {
+        console.error("Save profile error:", error);
+        setStatus("Failed to save profile changes");
+        setSaving(false);
+      });
+  }
+
+  function handleLogout() {
+    localStorage.removeItem("yekAuthToken");
+    localStorage.removeItem("yekUser");
+    localStorage.removeItem("yekRememberMe");
+    localStorage.removeItem("yekClientAccount");
+    window.location.hash = "";
   }
 
   function renderSection() {
@@ -398,7 +483,7 @@ export default function ClientDashboard() {
     <div className="client-shell">
       <ClientSidebar active={active} setActive={setActive} />
       <div className="client-main">
-        <Topbar query={query} setQuery={setQuery} active={active} account={account} plan={plan} />
+        <Topbar query={query} setQuery={setQuery} active={active} account={account} plan={plan} onLogout={handleLogout} />
         <main className="client-content">
           {status && <div className="client-toast">{status}</div>}
           <section className="client-stats">
